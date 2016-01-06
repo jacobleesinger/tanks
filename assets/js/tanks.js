@@ -13,6 +13,12 @@ var PhaserGame = function (game) {
     this.powerText = null;
     this.cursors = null;
     this.fireButton = null;
+    this.targetsRemaining = 5;
+    this.targetText = null;
+    this.gameOverText = null;
+    this.targetsDestroyed = 0;
+    this.playing = false;
+    this.startButton = null;
 };
 PhaserGame.prototype = {
     init: function () {
@@ -34,6 +40,7 @@ PhaserGame.prototype = {
         this.load.image('target', 'assets/images/target.png');
         this.load.image('land', 'assets/images/land.png');
         //  Note: Graphics from Amiga Tanx Copyright 1991 Gary Roberts
+        this.load.spritesheet('button', 'assets/images/button.png', 120, 40);
     },
     create: function () {
 
@@ -84,12 +91,42 @@ PhaserGame.prototype = {
         this.powerText = this.add.text(8, 8, 'Power: 300', { font: "18px Arial", fill: "#ffffff" });
         this.powerText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.powerText.fixedToCamera = true;
+
+        // display time remaining
+
+        this.timer = 60;
+        this.timerText = this.add.text(150, 8, 'Time:60', { font: "18px Arial", fill: "#ffffff" });
+        this.timerText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
+        this.timerText.fixedToCamera = true;
+
+        // display targets remaining
+        this.targetsRemaining = 5;
+        this.targetText = this.add.text(250, 8, "Targets Remaining: 5", { font: "18px Arial", fill: "#ffffff" });
+        this.targetText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
+        this.targetText.fixedToCamera = true;
+
+
         //  Some basic controls
         this.cursors = this.input.keyboard.createCursorKeys();
 
         this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.fireButton.onDown.add(this.fire, this);
 
+        this.startButton = game.add.button(game.world.width*0.5, game.world.height*0.5, 'button', this.startGame, this, 1, 0, 2);
+        this.startButton.anchor.set(0.5);
+
+
+
+    },
+
+    startGame: function () {
+      this.startButton.destroy();
+      this.playing = true;
+      game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
+    },
+
+    endGame: function () {
+      this.gameOverText = this.add.text(250, 250, "Game over! You hit " + this.targetsDestroyed + " targets");
 
     },
 
@@ -159,8 +196,12 @@ PhaserGame.prototype = {
        this.emitter.explode(2000, 10);
 
        target.kill();
+       this.targetsRemaining -= 1;
+       this.targetText.text = "Targets Remaining: " + this.targetsRemaining;
+       this.targetsDestroyed += 1;
 
        this.removeBullet(true);
+
 
      },
 
@@ -184,38 +225,45 @@ PhaserGame.prototype = {
      */
     update: function () {
 // debugger;
+
+      this.timerText.text = "Time: " + Math.floor(game.time.events.duration / 1000);
       this.physics.arcade.collide(this.target, this.land);
-        //  If the bullet is in flight we don't let them control anything
-        if (this.bullet.exists)
-        {
-           //  Bullet vs. the Targets
-           this.physics.arcade.overlap(this.bullet, this.targets, this.hitTarget, null, this);
-           //  Bullet vs. the land
-           this.bulletVsLand();
-       }
-        else
-        {
-            //  Allow them to set the power between 100 and 600
-            if (this.cursors.left.isDown && this.power > 100)
-            {
-                this.power -= 2;
-            }
-            else if (this.cursors.right.isDown && this.power < 600)
-            {
-                this.power += 2;
-            }
-            //  Allow them to set the angle, between -90 (straight up) and 0 (facing to the right)
-            if (this.cursors.up.isDown && this.turret.angle > -90)
-            {
-                this.turret.angle--;
-            }
-            else if (this.cursors.down.isDown && this.turret.angle < 0)
-            {
-                this.turret.angle++;
-            }
-            //  Update the text
-            this.powerText.text = 'Power: ' + this.power;
-        }
+
+        // game should only run if playing
+
+        if(this.playing) {
+          //  If the bullet is in flight we don't let them control anything
+          if (this.bullet.exists)
+          {
+             //  Bullet vs. the Targets
+             this.physics.arcade.overlap(this.bullet, this.targets, this.hitTarget, null, this);
+             //  Bullet vs. the land
+             this.bulletVsLand();
+         }
+          else
+          {
+              //  Allow them to set the power between 100 and 600
+              if (this.cursors.left.isDown && this.power > 100)
+              {
+                  this.power -= 2;
+              }
+              else if (this.cursors.right.isDown && this.power < 600)
+              {
+                  this.power += 2;
+              }
+              //  Allow them to set the angle, between -90 (straight up) and 0 (facing to the right)
+              if (this.cursors.up.isDown && this.turret.angle > -90)
+              {
+                  this.turret.angle--;
+              }
+              else if (this.cursors.down.isDown && this.turret.angle < 0)
+              {
+                  this.turret.angle++;
+              }
+              //  Update the text
+              this.powerText.text = 'Power: ' + this.power;
+          }
+      }
     }
 };
 game.state.add('Game', PhaserGame, true);
