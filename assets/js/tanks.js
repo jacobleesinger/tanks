@@ -36,14 +36,19 @@ PhaserGame.prototype = {
         //  Note: Graphics from Amiga Tanx Copyright 1991 Gary Roberts
     },
     create: function () {
+
+        // this.physics.startSystem(Phaser.Physics.ARCADE);
         //  Simple but pretty background
+
         this.background = this.add.sprite(0, 0, 'background');
         //  Something to shoot at :)
         this.targets = this.add.group(this.game.world, 'targets', false, true, Phaser.Physics.ARCADE);
-        this.targets.create(300, 390, 'target');
-        this.targets.create(500, 390, 'target');
-        this.targets.create(700, 390, 'target');
-        this.targets.create(900, 390, 'target');
+          this.targets.create(284, 378, 'target');
+          this.targets.create(456, 153, 'target');
+          this.targets.create(545, 305, 'target');
+          this.targets.create(726, 391, 'target');
+          this.targets.create(972, 74, 'target');
+          this.physics.arcade.enable(this.targets);
         //  Stop gravity from pulling them away
         this.targets.setAll('body.allowGravity', false);
         //  A single bullet that the tank will fire
@@ -53,6 +58,7 @@ PhaserGame.prototype = {
         this.land.draw('land');
         this.land.update();
         this.land.addToWorld();
+        this.physics.arcade.enable(this.land);
 
         // great balls of fire
         this.emitter = this.add.emitter(0, 0, 30);
@@ -83,7 +89,11 @@ PhaserGame.prototype = {
 
         this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.fireButton.onDown.add(this.fire, this);
+
+
     },
+
+
 
     bulletVsLand: function () {
        //  Simple bounds check
@@ -94,6 +104,7 @@ PhaserGame.prototype = {
        }
        var x = Math.floor(this.bullet.x);
        var y = Math.floor(this.bullet.y);
+       var pos = [x, y];
        var rgba = this.land.getPixel(x, y);
        if (rgba.a > 0)
        {
@@ -103,6 +114,8 @@ PhaserGame.prototype = {
            this.land.update();
            //  If you like you could combine the above 4 lines:
            // this.land.blendDestinationOut().circle(x, y, 16, 'rgba(0, 0, 0, 255').blendReset().update();
+          //  this.emitter.at(pos);
+          //  this.emitter.explode(2000, 10);
            this.removeBullet();
        }
    },
@@ -142,14 +155,16 @@ PhaserGame.prototype = {
      */
      hitTarget: function (bullet, target) {
 
-     this.emitter.at(target);
-     this.emitter.explode(2000, 10);
+       this.emitter.at(target);
+       this.emitter.explode(2000, 10);
 
-     target.kill();
+       target.kill();
 
-     this.removeBullet(true);
+       this.removeBullet(true);
 
- },
+     },
+
+
 
     /**
      * Removes the bullet, stops the camera following and tweens the camera back to the tank.
@@ -168,6 +183,8 @@ PhaserGame.prototype = {
      * @method update
      */
     update: function () {
+// debugger;
+      this.physics.arcade.collide(this.target, this.land);
         //  If the bullet is in flight we don't let them control anything
         if (this.bullet.exists)
         {
