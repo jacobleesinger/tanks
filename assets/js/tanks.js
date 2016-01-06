@@ -54,6 +54,13 @@ PhaserGame.prototype = {
         this.land.update();
         this.land.addToWorld();
 
+        // great balls of fire
+        this.emitter = this.add.emitter(0, 0, 30);
+        this.emitter.makeParticles('flame');
+        this.emitter.setXSpeed(-120, 120);
+        this.emitter.setYSpeed(-100, -200);
+        this.emitter.setRotation();
+
 
         this.bullet = this.add.sprite(0, 0, 'bullet');
         this.bullet.exists = false;
@@ -133,10 +140,17 @@ PhaserGame.prototype = {
      * @param {Phaser.Sprite} bullet - A reference to the bullet (same as this.bullet)
      * @param {Phaser.Sprite} target - The target the bullet hit
      */
-    hitTarget: function (bullet, target) {
-        target.kill();
-        this.removeBullet();
-    },
+     hitTarget: function (bullet, target) {
+
+     this.emitter.at(target);
+     this.emitter.explode(2000, 10);
+
+     target.kill();
+
+     this.removeBullet(true);
+
+ },
+
     /**
      * Removes the bullet, stops the camera following and tweens the camera back to the tank.
      * Have put this into its own method as it's called from several places.
