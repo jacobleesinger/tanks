@@ -106,6 +106,8 @@ PhaserGame.prototype = {
         this.targetText.fixedToCamera = true;
 
 
+
+
         //  Some basic controls
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -126,7 +128,9 @@ PhaserGame.prototype = {
     },
 
     endGame: function () {
-      this.gameOverText = this.add.text(250, 250, "Game over! You hit " + this.targetsDestroyed + " targets");
+      this.gameOverText = this.add.text(140, 200, "Time's up! You hit " + this.targetsDestroyed + " targets");
+      this.gameOverText.fixedToCamera = true;
+      this.playing = false;
 
     },
 
