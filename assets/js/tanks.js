@@ -32,6 +32,7 @@ PhaserGame.prototype = {
         this.load.image('background', 'assets/images/background.png');
         this.load.image('flame', 'assets/images/flame.png');
         this.load.image('target', 'assets/images/target.png');
+        this.load.image('land', 'assets/images/land.png');
         //  Note: Graphics from Amiga Tanx Copyright 1991 Gary Roberts
     },
     create: function () {
@@ -46,6 +47,14 @@ PhaserGame.prototype = {
         //  Stop gravity from pulling them away
         this.targets.setAll('body.allowGravity', false);
         //  A single bullet that the tank will fire
+
+        // Land
+        this.land = this.add.bitmapData(992, 480);
+        this.land.draw('land');
+        this.land.update();
+        this.land.addToWorld();
+
+
         this.bullet = this.add.sprite(0, 0, 'bullet');
         this.bullet.exists = false;
         this.physics.arcade.enable(this.bullet);
@@ -68,6 +77,28 @@ PhaserGame.prototype = {
         this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.fireButton.onDown.add(this.fire, this);
     },
+
+    bulletVsLand: function () {
+       //  Simple bounds check
+       if (this.bullet.x < 0 || this.bullet.x > this.game.world.width || this.bullet.y > this.game.height)
+       {
+           this.removeBullet();
+           return;
+       }
+       var x = Math.floor(this.bullet.x);
+       var y = Math.floor(this.bullet.y);
+       var rgba = this.land.getPixel(x, y);
+       if (rgba.a > 0)
+       {
+           this.land.blendDestinationOut();
+           this.land.circle(x, y, 16, 'rgba(0, 0, 0, 255');
+           this.land.blendReset();
+           this.land.update();
+           //  If you like you could combine the above 4 lines:
+           // this.land.blendDestinationOut().circle(x, y, 16, 'rgba(0, 0, 0, 255').blendReset().update();
+           this.removeBullet();
+       }
+   },
     /**
      * Called by fireButton.onDown
      *
@@ -126,17 +157,11 @@ PhaserGame.prototype = {
         //  If the bullet is in flight we don't let them control anything
         if (this.bullet.exists)
         {
-            if (this.bullet.y > 420)
-            {
-                //  Simple check to see if it's fallen too low
-                this.removeBullet();
-            }
-            else
-            {
-                //  Bullet vs. the Targets
-                this.physics.arcade.overlap(this.bullet, this.targets, this.hitTarget, null, this);
-            }
-        }
+           //  Bullet vs. the Targets
+           this.physics.arcade.overlap(this.bullet, this.targets, this.hitTarget, null, this);
+           //  Bullet vs. the land
+           this.bulletVsLand();
+       }
         else
         {
             //  Allow them to set the power between 100 and 600
