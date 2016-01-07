@@ -132,7 +132,7 @@ PhaserGame.prototype = {
     },
 
     youWin: function () {
-      this.gameOverText = this.add.text(120, 180, "You WIN! You hit all the targets \n with " + Math.floor(game.time.events.duration / 1000) +" seconds to spare! \n Press Space to play again.");
+      this.gameOverText = this.add.text(100, 100, "You WIN! You hit all the \n targets in " + (60 - Math.floor(game.time.events.duration / 1000)) +" seconds  \n Press Space to play again.");
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
       this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -140,7 +140,7 @@ PhaserGame.prototype = {
     },
 
     endGame: function () {
-      this.gameOverText = this.add.text(140, 200, "Time's up! You hit " + this.targetsDestroyed + " targets. \n Press Space to play again.");
+      this.gameOverText = this.add.text(100, 100, "Time's up! You hit " + this.targetsDestroyed + " targets. \n Press Space to play again.");
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
       this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
