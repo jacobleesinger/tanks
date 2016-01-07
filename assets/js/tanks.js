@@ -153,7 +153,7 @@ PhaserGame.prototype = {
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
 
-      // game.time.events.add(Phaser.Timer.SECOND * 10, this.resetGame, this);
+      game.time.events.add(Phaser.Timer.SECOND * 10, this.resetGame, this);
       // this.resetTimerText.text = "reset: " + Math.floor(game.time.events.duration / 1000);
 
     },
