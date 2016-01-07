@@ -19,6 +19,8 @@ var PhaserGame = function (game) {
     this.targetsDestroyed = 0;
     this.playing = false;
     this.startButton = null;
+    this.instructionText = null;
+    this.resetTimerText = null;
 };
 PhaserGame.prototype = {
     init: function () {
@@ -105,6 +107,8 @@ PhaserGame.prototype = {
         this.targetText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.targetText.fixedToCamera = true;
 
+        this.instructionText = this.add.text(100, 100, "Welcome to Tanks! \n You will have 1 minute. \n Hit as many targets as you can. \n Press Start to begin!")
+
 
 
 
@@ -114,23 +118,43 @@ PhaserGame.prototype = {
         this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.fireButton.onDown.add(this.fire, this);
 
-        this.startButton = game.add.button(game.world.width*0.5, game.world.height*0.5, 'button', this.startGame, this, 1, 0, 2);
+        this.startButton = game.add.button(300, 280, 'button', this.startGame, this, 1, 0, 2);
         this.startButton.anchor.set(0.5);
+        this.startButton.fixedToCamera = true;
 
 
 
     },
 
     startGame: function () {
+
+      if(this.instructionText) {
+
+        this.instructionText.destroy();
+      }
+      // if(this.gameOverText) {
+      //   location.reload();
+      //   this.gameOverText.destroy();
+      //   this.startGame();
+      // }
       this.startButton.destroy();
       this.playing = true;
       game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
+    },
+
+    resetGame: function () {
+
+      location.reload();
+
     },
 
     endGame: function () {
       this.gameOverText = this.add.text(140, 200, "Time's up! You hit " + this.targetsDestroyed + " targets");
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
+
+      // game.time.events.add(Phaser.Timer.SECOND * 10, this.resetGame, this);
+      // this.resetTimerText.text = "reset: " + Math.floor(game.time.events.duration / 1000);
 
     },
 
@@ -230,12 +254,12 @@ PhaserGame.prototype = {
     update: function () {
 // debugger;
 
-      this.timerText.text = "Time: " + Math.floor(game.time.events.duration / 1000);
       this.physics.arcade.collide(this.target, this.land);
 
         // game should only run if playing
 
         if(this.playing) {
+          this.timerText.text = "Time: " + Math.floor(game.time.events.duration / 1000);
           //  If the bullet is in flight we don't let them control anything
           if (this.bullet.exists)
           {
