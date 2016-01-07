@@ -30,10 +30,7 @@ PhaserGame.prototype = {
         this.physics.arcade.gravity.y = 200;
     },
     preload: function () {
-        //  We need this because the assets are on Amazon S3
-        //  Remove the next 2 lines if running locally
-        // this.load.baseURL = 'http://files.phaser.io.s3.amazonaws.com/codingtips/issue001/';
-        // this.load.crossOrigin = 'anonymous';
+
         this.load.image('tank', 'assets/images/tank.png');
         this.load.image('turret', 'assets/images/turret.png');
         this.load.image('bullet', 'assets/images/bullet.png');
@@ -52,56 +49,47 @@ PhaserGame.prototype = {
         this.background = this.add.sprite(0, 0, 'background');
         //  Something to shoot at :)
         this.targets = this.add.group(this.game.world, 'targets', false, true, Phaser.Physics.ARCADE);
-          this.targets.create(284, 378, 'target');
-          this.targets.create(456, 153, 'target');
-          this.targets.create(545, 305, 'target');
-          this.targets.create(726, 391, 'target');
-          this.targets.create(972, 74, 'target');
-          this.physics.arcade.enable(this.targets);
-        //  Stop gravity from pulling them away
+        this.targets.create(284, 378, 'target');
+        this.targets.create(456, 153, 'target');
+        this.targets.create(545, 305, 'target');
+        this.targets.create(726, 391, 'target');
+        this.targets.create(972, 74, 'target');
+        this.physics.arcade.enable(this.targets);
         this.targets.setAll('body.allowGravity', false);
-        //  A single bullet that the tank will fire
 
-        // Land
         this.land = this.add.bitmapData(992, 480);
         this.land.draw('land');
         this.land.update();
         this.land.addToWorld();
-        this.physics.arcade.enable(this.land);
 
-        // great balls of fire
         this.emitter = this.add.emitter(0, 0, 30);
         this.emitter.makeParticles('flame');
         this.emitter.setXSpeed(-120, 120);
         this.emitter.setYSpeed(-100, -200);
         this.emitter.setRotation();
 
-
         this.bullet = this.add.sprite(0, 0, 'bullet');
         this.bullet.exists = false;
         this.physics.arcade.enable(this.bullet);
-        //  The body of the tank
+
         this.tank = this.add.sprite(24, 383, 'tank');
-        //  The turret which we rotate (offset 30x14 from the tank)
+
         this.turret = this.add.sprite(this.tank.x + 30, this.tank.y + 14, 'turret');
-        //  When we shoot this little flame sprite will appear briefly at the end of the turret
+
         this.flame = this.add.sprite(0, 0, 'flame');
         this.flame.anchor.set(0.5);
         this.flame.visible = false;
-        //  Used to display the power of the shot
+
         this.power = 300;
         this.powerText = this.add.text(8, 8, 'Power: 300', { font: "18px Arial", fill: "#ffffff" });
         this.powerText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.powerText.fixedToCamera = true;
-
-        // display time remaining
 
         this.timer = 60;
         this.timerText = this.add.text(150, 8, 'Time:60', { font: "18px Arial", fill: "#ffffff" });
         this.timerText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.timerText.fixedToCamera = true;
 
-        // display targets remaining
         this.targetsRemaining = 5;
         this.targetText = this.add.text(250, 8, "Targets Remaining: 5", { font: "18px Arial", fill: "#ffffff" });
         this.targetText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
@@ -109,10 +97,6 @@ PhaserGame.prototype = {
 
         this.instructionText = this.add.text(100, 100, "Welcome to Tanks! \n You will have 1 minute. \n Hit as many targets as you can. \n Press Start to begin!")
 
-
-
-
-        //  Some basic controls
         this.cursors = this.input.keyboard.createCursorKeys();
 
         this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -122,8 +106,6 @@ PhaserGame.prototype = {
         this.startButton.anchor.set(0.5);
         this.startButton.fixedToCamera = true;
 
-
-
     },
 
     startGame: function () {
@@ -132,11 +114,7 @@ PhaserGame.prototype = {
 
         this.instructionText.destroy();
       }
-      // if(this.gameOverText) {
-      //   location.reload();
-      //   this.gameOverText.destroy();
-      //   this.startGame();
-      // }
+
       this.startButton.destroy();
       this.playing = true;
       game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
@@ -149,12 +127,14 @@ PhaserGame.prototype = {
     },
 
     endGame: function () {
-      this.gameOverText = this.add.text(140, 200, "Time's up! You hit " + this.targetsDestroyed + " targets");
+      this.gameOverText = this.add.text(140, 200, "Time's up! You hit " + this.targetsDestroyed + " targets. \n Press Space to play again.");
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
+      this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+      this.resetButton.onDown.add(this.resetGame, this);
 
       game.time.events.add(Phaser.Timer.SECOND * 10, this.resetGame, this);
-      // this.resetTimerText.text = "reset: " + Math.floor(game.time.events.duration / 1000);
+
 
     },
 
@@ -177,19 +157,13 @@ PhaserGame.prototype = {
            this.land.circle(x, y, 16, 'rgba(0, 0, 0, 255');
            this.land.blendReset();
            this.land.update();
-           //  If you like you could combine the above 4 lines:
-           // this.land.blendDestinationOut().circle(x, y, 16, 'rgba(0, 0, 0, 255').blendReset().update();
-          //  this.emitter.at(pos);
-          //  this.emitter.explode(2000, 10);
+
            this.removeBullet();
        }
    },
-    /**
-     * Called by fireButton.onDown
-     *
-     * @method fire
-     */
+
     fire: function () {
+      if(this.playing) {
         if (this.bullet.exists)
         {
             return;
@@ -210,14 +184,11 @@ PhaserGame.prototype = {
         this.camera.follow(this.bullet);
         //  Our launch trajectory is based on the angle of the turret and the power
         this.physics.arcade.velocityFromRotation(this.turret.rotation, this.power, this.bullet.body.velocity);
+      }
     },
-    /**
-     * Called by physics.arcade.overlap if the bullet and a target overlap
-     *
-     * @method hitTarget
-     * @param {Phaser.Sprite} bullet - A reference to the bullet (same as this.bullet)
-     * @param {Phaser.Sprite} target - The target the bullet hit
-     */
+
+  //  Called by physics.arcade.overlap if the bullet and a target overlap
+
      hitTarget: function (bullet, target) {
 
        this.emitter.at(target);
@@ -233,44 +204,24 @@ PhaserGame.prototype = {
 
      },
 
-
-
-    /**
-     * Removes the bullet, stops the camera following and tweens the camera back to the tank.
-     * Have put this into its own method as it's called from several places.
-     *
-     * @method removeBullet
-     */
     removeBullet: function () {
         this.bullet.kill();
         this.camera.follow();
         this.add.tween(this.camera).to( { x: 0 }, 1000, "Quint", true, 1000);
     },
-    /**
-     * Core update loop. Handles collision checks and player input.
-     *
-     * @method update
-     */
+
     update: function () {
-// debugger;
-
-      this.physics.arcade.collide(this.target, this.land);
-
-        // game should only run if playing
-
         if(this.playing) {
           this.timerText.text = "Time: " + Math.floor(game.time.events.duration / 1000);
-          //  If the bullet is in flight we don't let them control anything
+
           if (this.bullet.exists)
           {
-             //  Bullet vs. the Targets
              this.physics.arcade.overlap(this.bullet, this.targets, this.hitTarget, null, this);
-             //  Bullet vs. the land
+
              this.bulletVsLand();
          }
           else
           {
-              //  Allow them to set the power between 100 and 600
               if (this.cursors.left.isDown && this.power > 100)
               {
                   this.power -= 2;
@@ -279,7 +230,6 @@ PhaserGame.prototype = {
               {
                   this.power += 2;
               }
-              //  Allow them to set the angle, between -90 (straight up) and 0 (facing to the right)
               if (this.cursors.up.isDown && this.turret.angle > -90)
               {
                   this.turret.angle--;
@@ -288,7 +238,6 @@ PhaserGame.prototype = {
               {
                   this.turret.angle++;
               }
-              //  Update the text
               this.powerText.text = 'Power: ' + this.power;
           }
       }
