@@ -115,7 +115,11 @@ PhaserGame.prototype = {
         this.instructionText.destroy();
       }
 
-      this.startButton.destroy();
+      if(this.startButton) {
+
+        this.startButton.destroy();
+      }
+
       this.playing = true;
       game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
     },
@@ -123,7 +127,16 @@ PhaserGame.prototype = {
     resetGame: function () {
 
       location.reload();
+      this.startGame();
 
+    },
+
+    youWin: function () {
+      this.gameOverText = this.add.text(120, 180, "You WIN! You hit all the targets \n with " + Math.floor(game.time.events.duration / 1000) +" seconds to spare! \n Press Space to play again.");
+      this.gameOverText.fixedToCamera = true;
+      this.playing = false;
+      this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+      this.resetButton.onDown.add(this.resetGame, this);
     },
 
     endGame: function () {
@@ -133,7 +146,7 @@ PhaserGame.prototype = {
       this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       this.resetButton.onDown.add(this.resetGame, this);
 
-      game.time.events.add(Phaser.Timer.SECOND * 10, this.resetGame, this);
+
 
 
     },
@@ -239,6 +252,10 @@ PhaserGame.prototype = {
                   this.turret.angle++;
               }
               this.powerText.text = 'Power: ' + this.power;
+          }
+
+          if(this.targetsRemaining === 0) {
+            this.youWin();
           }
       }
     }
