@@ -1,6 +1,3 @@
-
-
-
 var game = new Phaser.Game(640, 480, Phaser.CANVAS, 'game');
 var PhaserGame = function (game) {
     this.tank = null;
@@ -49,6 +46,10 @@ PhaserGame.prototype = {
         this.background = this.add.sprite(0, 0, 'background');
         //  Something to shoot at :)
         this.targets = this.add.group(this.game.world, 'targets', false, true, Phaser.Physics.ARCADE);
+        // this.targets.create(350, 310, 'target');
+        // this.targets.create(630, 320, 'target');
+        // this.targets.create(830, 338, 'target');
+
         this.targets.create(284, 378, 'target');
         this.targets.create(456, 153, 'target');
         this.targets.create(545, 305, 'target');
@@ -91,7 +92,7 @@ PhaserGame.prototype = {
         this.timerText.fixedToCamera = true;
 
         this.targetsRemaining = 5;
-        this.targetText = this.add.text(250, 8, "Targets Remaining: 5", { font: "18px Arial", fill: "#ffffff" });
+        this.targetText = this.add.text(250, 8, "Targets Remaining: 8", { font: "18px Arial", fill: "#ffffff" });
         this.targetText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.targetText.fixedToCamera = true;
 
@@ -121,7 +122,7 @@ PhaserGame.prototype = {
       }
 
       this.playing = true;
-      game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
+      this.timerEvent = game.time.events.add(Phaser.Timer.SECOND * 60, this.endGame, this);
     },
 
     resetGame: function () {
@@ -132,12 +133,15 @@ PhaserGame.prototype = {
     },
 
     youWin: function () {
+      this.time.events.remove(this.timerEvent);
       this.gameOverText = this.add.text(100, 100, "You WIN! You hit all the \n targets in " + (60 - Math.floor(game.time.events.duration / 1000)) +" seconds  \n Press Space to play again.");
       this.gameOverText.fixedToCamera = true;
       this.playing = false;
       this.resetButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       this.resetButton.onDown.add(this.resetGame, this);
     },
+
+
 
     endGame: function () {
       this.gameOverText = this.add.text(100, 100, "Time's up! You hit " + this.targetsDestroyed + " targets. \n Press Space to play again.");

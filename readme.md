@@ -1,6 +1,7 @@
 # tanks.js
 tanks.js is a simple browser game based on the classic Commodore Amiga Tanks
-[live link] (http://jacobleesinger.github.io/tanks/)
+
+[Play Tanks!] (http://jacobleesinger.github.io/tanks/)
 
 
 ## How to Play
