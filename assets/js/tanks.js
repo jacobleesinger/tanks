@@ -92,7 +92,7 @@ PhaserGame.prototype = {
         this.timerText.fixedToCamera = true;
 
         this.targetsRemaining = 5;
-        this.targetText = this.add.text(250, 8, "Targets Remaining: 8", { font: "18px Arial", fill: "#ffffff" });
+        this.targetText = this.add.text(250, 8, "Targets Remaining: 5", { font: "18px Arial", fill: "#ffffff" });
         this.targetText.setShadow(1, 1, 'rgba(0, 0, 0, 0.8)', 1);
         this.targetText.fixedToCamera = true;
 
